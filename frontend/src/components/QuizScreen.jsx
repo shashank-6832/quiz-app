@@ -22,8 +22,7 @@ export default function QuizScreen({ questions, playerName, onComplete }) {
 
   function handleNext() {
     if (isLast) {
-      const finalScore = selected === question.correct_answer ? score : score;
-      onComplete(finalScore);
+      onComplete(score);
     } else {
       setCurrent((c) => c + 1);
       setSelected(null);

@@ -218,8 +218,9 @@ minikube stop
 2. `kubectl get pods` — shows all pods Running
 3. App screenshot in browser
 
+
+
 ---
 
 ## Author
-
-**[Your Name]** — CS515 Unix Programming, IIIT Tiruchirappalli
+BADAVATH SHASHANK , 231109  — CS515 Unix Programming, IIIT Tiruchirappalli

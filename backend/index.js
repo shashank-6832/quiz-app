@@ -127,7 +127,7 @@ app.get("/api/health", (req, res) => {
 app.get("/api/questions", async (req, res) => {
   try {
     const { rows } = await pool.query(
-      "SELECT id, question, options, category FROM questions ORDER BY RANDOM()"
+      "SELECT id, question, options, correct_answer, category FROM questions ORDER BY RANDOM()"
     );
     res.json(rows);
   } catch (err) {
