@@ -1,0 +1,47 @@
+---
+# Deployment — 2 replicas
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quiz-frontend
+  namespace: default
+  labels:
+    app: quiz-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: quiz-frontend
+  template:
+    metadata:
+      labels:
+        app: quiz-frontend
+    spec:
+      containers:
+        - name: quiz-frontend
+          image: quiz-frontend:latest
+          imagePullPolicy: Never   # Use local Minikube image
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+---
+# Service — NodePort to access from browser via Minikube
+apiVersion: v1
+kind: Service
+metadata:
+  name: quiz-frontend
+  namespace: default
+spec:
+  type: NodePort
+  selector:
+    app: quiz-frontend
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30080

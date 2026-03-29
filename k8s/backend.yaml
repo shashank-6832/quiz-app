@@ -1,0 +1,78 @@
+---
+# ConfigMap for non-sensitive backend config
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: default
+data:
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  DB_NAME: quizdb
+  PORT: "5000"
+
+---
+# Deployment — 2 replicas as required
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quiz-backend
+  namespace: default
+  labels:
+    app: quiz-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: quiz-backend
+  template:
+    metadata:
+      labels:
+        app: quiz-backend
+    spec:
+      containers:
+        - name: quiz-backend
+          image: quiz-backend:latest
+          imagePullPolicy: Never   # Use local Minikube image
+          ports:
+            - containerPort: 5000
+          envFrom:
+            - configMapRef:
+                name: backend-config
+          env:
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 5000
+            initialDelaySeconds: 30
+            periodSeconds: 15
+
+---
+# Service (ClusterIP — internal)
+apiVersion: v1
+kind: Service
+metadata:
+  name: quiz-backend
+  namespace: default
+spec:
+  selector:
+    app: quiz-backend
+  ports:
+    - port: 5000
+      targetPort: 5000
